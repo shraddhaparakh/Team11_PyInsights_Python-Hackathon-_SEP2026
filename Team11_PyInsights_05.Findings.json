@@ -10,7 +10,7 @@
       "finding": "### What Question 1 tells us\n\nThe tables and charts establish how common each recorded severity grade is in the full patient group. Use the displayed percentages and missing counts when describing the result. A large count for one grade tells us that grade was common *in this dataset*; it does not explain what caused the patient's condition.",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
         12,
         15
@@ -24,7 +24,7 @@
       "finding": "### What Question 2 tells us\n\nRead *across a row* to see how Killip grades are distributed among patients in one NYHA class. The percentage denominator changes from row to row and is printed in the table above. The chart describes overlap in this patient group; it cannot tell us that one score causes the other or that the two assessments measure the same condition.",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
         16,
         19
@@ -38,7 +38,7 @@
       "finding": "**Evidence:** LVEF recorded for only 635 of 2,008 patients (31.6%; 68.4% missing). Among those recorded: mean 50.7%, median 51%, IQR 41–61%, range 5–82%. Contrary to what we expected, the distribution is roughly symmetric around a near-normal EF (≥50% is generally considered preserved), not skewed toward reduced EF. Separately, `type_of_heart_failure` is not an EF-based phenotype (HFrEF/HFmrEF/HFpEF) but a laterality classification: Both-sided 73.7% (n=1,480), Left-sided 23.8% (n=477), Right-sided 2.5% (n=51).",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
         20,
         20
@@ -52,7 +52,7 @@
       "finding": "**Evidence:** CCI score: mean 1.86, median 2, IQR 1–2 (n=2,003 of 2,008 — 5 patients missing a CCI value). As expected, chronic kidney disease (23.6%) and diabetes (23.2%) are the two most prevalent comorbidities, essentially tied, followed by COPD (11.6%) and cerebrovascular disease (7.5%). Leukemia and malignant lymphoma are effectively absent (0.0%). Note: `acute_renal_failure` (0.3%) was excluded from this comorbidity ranking on review — it's an acute in-hospital event, not a chronic comorbidity like the other 13, so grouping it here would have misrepresented what the question measures.",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
         22,
         22
@@ -66,7 +66,7 @@
       "finding": "**Evidence:** Both death and readmission rates rise monotonically with time window, as expected: death 1.8% (28d) → 2.1% (3mo) → 2.8% (6mo); readmission 7.0% (28d) → 24.8% (3mo) → 38.5% (6mo). In-hospital outcome: 94.1% discharged alive, 5.3% (n=107) discharged against medical order, 0.5% (n=11) died in-hospital. Notably, in-hospital mortality (0.5%) is far lower than 28-day mortality (1.8%) — most 28-day deaths occur post-discharge, not during the admission itself.",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
         24,
         24
@@ -75,43 +75,43 @@
     {
       "phase": "Descriptive",
       "number": 6,
-      "question": "What does the BNP distribution show?",
-      "why": "It directly validates the heart failure cohort against its own strict protocol boundaries while establishing an objective baseline for disease severity. By evaluating this continuous feature, we can confirm compliance with the diagnostic inclusion criteria (BNP >35 pg/mL or NT-proBNP >125 pg/mL), bypass subjective variations in clinician-assigned rankings like NYHA or Killip, and map out the true distribution of hemodynamic stress across the study population.",
-      "finding": "We conclude that Continuous Severity is due to the heavy right-skewness of the biomarker distribution—caused by extreme cases of acute decompensation and the arithmetic mean is significantly pulled upward. The cohort median serves as the only reliable continuous metric for heart failure severity, providing an objective tracker of ventricular wall stress that bypasses the subjective clinician boundaries of NYHA Class or Killip Grade.",
+      "question": "What does the distribution of Brain Natriuretic Peptide (BNP) tell us about the cardiac biomarker profile of the cohort, and how does BNP vary across heart-failure severity groups?",
+      "why": "BNP is a clinically relevant biomarker associated with cardiac stress and heart-failure severity. Unlike categorical measures such as NYHA or Killip classification, BNP provides a continuous measure of cardiac burden. Examining its distribution helps us understand the typical BNP level, the degree of variability, the presence of extreme values, and whether the biomarker is available consistently across the cohort.",
+      "finding": "BNP is **well represented** in the cohort, with **98.26%** of patients (1,973 of 2,008) having a recorded value — only 35 patients (1.74%) are missing this measurement. This is notably more complete than LVEF (68% missing), consistent with BNP being a routine, low-effort blood draw rather than an imaging study.\n\nThe distribution is **strongly right-skewed** (skewness = 1.49), with a mean of **1,280.44 pg/mL** well above the median of **753.03 pg/mL**. This gap indicates a relatively small number of very high-BNP patients pulling the mean upward — the median is the more representative \"typical\" value for this cohort. The log-transformed distribution confirms this: once log-transformed, the bulk of the data approximates a roughly normal shape, meaning the skew is largely multiplicative (log-normal) in nature, as is typical for biomarker concentrations.\n\nTwo data-quality points are worth flagging explicitly rather than treating the raw statistics at face value:\n\n- **Apparent reporting ceiling at 5,000 pg/mL.** The 95th percentile, 99th percentile, and maximum are all exactly 5,000.00 — the same round number three times over is a strong signal that values above this weren't measured/reported precisely, but capped at an assay or reporting limit. This shows up visually as the isolated spike at the far right edge of both histograms, rather than a smooth tapering tail. Practically, this means the true severity of the highest-BNP patients is understated — some of that \"5,000\" group may be considerably higher in reality — and any analysis treating 5,000 as a precise value should note this limitation.\n- **Minimum value (2.69 pg/mL) falls below the dataset's own inclusion threshold.** The source study's diagnostic criteria required BNP >35 pg/mL *or* NT-proBNP >125 pg/mL for inclusion — so a BNP reading this low is not necessarily an error; it likely reflects a patient who qualified via the NT-proBNP pathway instead. Worth a quick follow-up count of how many patients fall below the 35 pg/mL threshold, to confirm this is a small, explainable minority rather than a broader data issue.\n\nWhen BNP is compared across severity groups, the patterns differ in strength depending on which severity measure is used:\n\n- **By NYHA class**, BNP rises cleanly and monotonically with severity: median BNP is 529.82 (Class 2, n=348), 693.87 (Class 3, n=1,017), and 1,130.34 (Class 4, n=608) — mirrored in the mean (966 → 1,174 → 1,639) and visible in the boxplot. This is the clearest and most consistent group pattern in the data.\n- **By Killip grade**, the pattern is less clean: median BNP goes 571.19 (Grade 1) → 802.74 (Grade 2) → 809.98 (Grade 3) → 1,411.20 (Grade 4, n=58). Grades 2 and 3 are nearly indistinguishable (802.74 vs. 809.98) despite representing different acute presentations — BNP clearly separates the mildest (Grade 1) and most severe (Grade 4, cardiogenic shock) patients, but doesn't discriminate well between the two grades in between.\n- **By heart-failure type** (Both/Left/Right), BNP shows little separation — median values of 772.43 (Both, n=1,460) and 736.85 (Left, n=462) are close to each other, suggesting BNP tracks functional/chronic severity (NYHA) far more strongly than it tracks which side of the heart is affected.",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
         26,
-        30
+        34
       ]
     },
     {
       "phase": "Descriptive",
       "number": 7,
-      "question": "What does the kidney function (GFR) distribution show?",
-      "why": "GFR is critical because the heart and kidneys operate in a tight physiological feedback loop. In heart failure (HF), reduced cardiac output triggers renal vasoconstriction, while worsening renal function causes fluid retention that overloads the ventricles—a condition known as Cardiorenal Syndrome.",
-      "finding": "Plotting this distribution directly plugs a critical gap in the original data profiling. Because heart failure and renal dysfunction are inextricably linked through neurohormonal activation (RAAS), profiling the baseline GFR determines exactly how much of the cohort suffers from baseline Cardiorenal Syndrome.In  Cohort Burden, If a significant percentage of patients present with a GFR < 60 mL/min/1.73m², the cohort is mathematically proven to possess a high burden of Chronic Kidney Disease (CKD Stage 3 or worse). This background risk completely changes how downstream models must interpret cardiac stress markers like BNP.",
+      "question": "What does baseline kidney function (GFR) look like across the cohort, and what does it suggest about cardiorenal burden?",
+      "why": "Cardiorenal interaction is central to heart failure physiology — a weakly pumping heart reduces blood flow to the kidneys, which then retain more fluid, further straining the heart. Despite this, nothing in the original 10 questions established a kidney-function baseline, and this number is a direct prerequisite for later questions (e.g., cardiac function vs. renal markers) that can't be scoped without it.",
+      "finding": "**Evidence:** GFR was recorded for 1,945 of 2,008 patients (96.9%; 63 missing). The distribution is right-skewed: mean 68.66, median 64.79, IQR [41.60–90.12] mL/min/1.73m². **886 patients (45.55% of the cohort) fall below GFR 60** — the clinical threshold for CKD stage 3 or worse. A small number of extreme outliers extend out past 250 mL/min/1.73m², which is physiologically implausible as a true filtration rate and more likely reflects instability in the estimating equation at very low creatinine values rather than genuine kidney function — worth a follow-up check on how many patients this affects before treating the upper tail as reliable.\n\n**Why It Matters:** This directly confirms and quantifies what Q4 could only hint at: only 23.6% of the cohort carries the *diagnosed* CKD comorbidity flag, but **nearly double that rate — 45.55% — shows actual impaired kidney function by lab measurement.** This gap between diagnosis and lab reality is one of the strongest findings in the Descriptive stage so far, and it means renal impairment is likely under-recognized as a formal diagnosis relative to how common it actually is in this cohort.\n\n**Follow-Up Question:** Does the CKD diagnosis flag actually correspond to patients with low measured GFR, or are a large number of low-GFR patients going undiagnosed? *(This is the natural, evidence-backed Category 3 question this result sets up — already on the team's candidate list.)*\n\n**Denominator clarification:** 886 of 1,945 patients with a recorded GFR were below 60 (45.55% of measured patients); that is 44.1% of the full 2,008-patient cohort.",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
-        31,
-        35
+        36,
+        38
       ]
     },
     {
       "phase": "Descriptive",
       "number": 8,
-      "question": "What does medication use look like across the cohort?",
-      "why": "The following script consolidates the 25 individual drug_* binary indicator flags into the three overarching pharmacological classes specified by the source study (Diuretics, Inotropes, and Vasodilators), calculates the cumulative medication burden per patient, and explicitly accounts for non-medicated control records (such as patient 789308).",
-      "finding": "The total_drug_count distribution reveals the true clinical management overhead of the cohort. High right-shifting in this histogram indicates a dense polypharmacy model, which is common in advanced heart failure to satisfy guideline-directed medical therapy (GDMT).Aggregating the 25 chaotic binary drug_* indicators into three high-level clinical classes simplifies down-stream machine learning. Grouping these features reduces dimensionality while directly reflecting the therapeutic hierarchy outlined in the source study design.They represent medication-naive patients captured immediately upon acute presentation prior to stabilizing therapy, providing an unconfounded window into native heart failure biomarkers.",
+      "question": "What does the medication overview show — overall drug burden and prevalence of the three major therapeutic classes?",
+      "why": "The pivot of the story — \"given how sick and burdened they were, here's what was actually done.\" Bridges description into treatment.",
+      "finding": "**Evidence:** Mean medication burden was 7.65 drugs per patient, with the distribution roughly bell-shaped and centered between 5–10 drugs — most patients receive a substantial multi-drug regimen, consistent with the moderate-to-high severity established in Q1. Only 1 patient (confirmed as patient 789308) had zero active prescriptions.\n\nAmong the three therapeutic classes named in the source study:\n- **Diuretics: 98.4%** — near-universal, confirming fluid management as the dominant treatment focus for this cohort.\n- **Inotropes: 73.5%** — a substantially higher share than initially estimated (an earlier column-matching pass had missed two of the five named inotropes, deslanoside and isoprenaline, undercounting this figure at 63.0%).\n- **Vasodilators: 23.2%** — the most selectively used of the three classes.\n\nThe remaining 13 drug columns (e.g., Aspirin, Warfarin, Atorvastatin, Valsartan, Metoprolol) fall outside these three classes by design — they're antiplatelet/anticoagulant, lipid-lowering, ACE-inhibitor, and beta-blocker therapies, not part of the diuretic/inotrope/vasodilator framework this question is scoped to.\n\n**Why It Matters:** The near-universal diuretic use (98.4%) confirms fluid overload as the defining, almost unanimous treatment target in this cohort — consistent with the severity picture built across Q1–Q7. The corrected inotrope figure (73.5%, not 63.0%) is a meaningfully larger share of the cohort receiving escalated cardiac support than the uncorrected number would have suggested — this matters for Category 3, since a \"does inotrope use track with severity\" question is now working with a substantially different, larger group than originally measured. The vasodilator gap (23.2% vs. 98.4%/73.5%) marks the clearest treatment-intensity split in the data — a natural boundary for a follow-up severity comparison.\n\n**Follow-Up Question:** Does inotrope use (now correctly measured at 73.5%) track more closely with Killip grade than with NYHA class — mirroring the same acute-vs-chronic severity distinction BNP showed in Q6?",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
-        36,
-        40
+        39,
+        41
       ]
     },
     {
@@ -122,10 +122,10 @@
       "finding": "**Evidence:** Length of Stay is right-skewed. The median LOS was 8.0 days, with the middle 50% of patients staying between 6.0 and 10.0 days (IQR = 4.0 days). A small number of long-stay patients create a long right tail in the distribution — median and IQR are more reliable summaries here than the mean, which the tail would pull upward.\n\n**Why It Matters:** An 8-day median gives the team a concrete operational baseline — any subgroup with a materially longer stay (e.g., higher severity or higher drug count) becomes a flag for discharge-planning attention downstream, and this number is what that comparison gets measured against.",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
-        41,
-        44
+        42,
+        45
       ]
     },
     {
@@ -136,12 +136,12 @@
       "finding": "### Finding — GCS Distribution\n\nGCS was available for all **2,008 patients** in the cohort. The median GCS score was **15**, with both the first quartile (Q1) and third quartile (Q3) also equal to **15**.\n\nThe distribution is highly concentrated at a GCS score of **15**, while only a small number of patients have lower GCS scores.\n\n### Interpretation\n\nThe cohort therefore shows very limited variation in GCS for the majority of patients, with most recorded scores at the upper end of the GCS scale. The small number of lower scores represents a relatively limited subgroup with different recorded neurological responsiveness.\n\nThis establishes GCS as a variable with a highly concentrated distribution in this cohort, which should be considered when comparing neurological status with other patient characteristics or outcomes in later analysis.\n\n### Finding — Consciousness Categories\n\nThe **Clear** consciousness category was by far the most frequently recorded status, accounting for **1,974 patients (98.3%)**.\n\nThe remaining patients were distributed across **ResponsiveToSound (19 patients, 0.9%)**, **Nonresponsive (11 patients, 0.5%)**, and **ResponsiveToPain (4 patients, 0.2%)**.\n\n### Interpretation\n\nThe consciousness distribution is strongly concentrated in the **Clear** category, with only a small proportion of patients recorded in the other consciousness categories.\n\nThis indicates that the categorical measure of consciousness also has limited variation across the cohort. Examining it together with the GCS distribution provides a more complete descriptive view of neurological responsiveness.\n\n### Finding — GCS and Consciousness\n\nThe GCS distributions across consciousness categories show **a clear difference in neurological responsiveness**\nPatients recorded as **Conscious** generally had **higher(15)** GCS scores compared with patients in the **unconscious** category.\n\n### Interpretation\n\nThe GCS and consciousness variables provide two complementary views of neurological responsiveness. The observed differences between the categories help describe how the numerical GCS measure corresponds to the recorded consciousness status within this cohort.",
       "status": "Reported finding",
       "section": "Patient profile and outcomes",
-      "source_notebook": "Team11_PyInsights_2. Descriptive Analysis new(1).ipynb",
+      "source_notebook": "Team11_PyInsights_02.Descriptive Analysis.ipynb",
       "source_cells": [
-        45,
-        48,
-        52,
-        55
+        46,
+        49,
+        54,
+        57
       ]
     },
     {
@@ -152,7 +152,7 @@
       "finding": "**Finding**\n\n885/1,943 (45.55%) have GFR<60; only 461 (23.73%) carry the CKD flag. 479 patients (24.7%) are low-GFR but unflagged; only 55 (2.8%) are flagged with normal GFR. Agreement = 72.5%, but Cohen's κ = 0.423 (moderate, not strong). Chi-square p ≈ 2.46e-97 — significant, but with n=1,943 that reflects sample size, not interchangeability.\n\n**Observation & Implication**\n\nThe two measures disagree more than they agree meaningfully (κ=0.423), and the flag under-catches far more than it over-flags. Measured GFR will be used as the primary renal-function variable going forward; the CKD flag stays separate as a comorbidity variable, not a GFR proxy. Sets up Q2 (GFR vs. severity) using the lab value.\n\n**Counter-Argument:** CKD is a chronic diagnosis — some \"missed\" patients may just have a normal GFR at this admission despite a history of impairment. Doesn't change the choice: current GFR is still the right variable for a cross-sectional analysis.",
       "status": "Reported finding",
       "section": "Renal function and severity",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         9,
         11
@@ -166,7 +166,7 @@
       "finding": "#### Finding\n\nBoth NYHA and Killip are significantly associated with GFR group (NYHA: chi2=25.0, p=0.000004; Killip: chi2=16.9, p=0.00076), and median GFR declines across NYHA classes (70.1 → 67.2 → 56.8). But the Spearman correlations are weak (NYHA rho=-0.132; Killip rho=-0.085) — significant mainly because n is large (1,945). Killip's relationship isn't even monotonic (median GFR dips at class 2, partly recovers at class 3).\n\n#### Observation & Implication\n\nCardiorenal syndrome is present but weak, and NYHA tracks it more cleanly than Killip. Statistical significance here reflects sample size, not a strong relationship — this won't be pitched as a headline finding. **NYHA is the preferred severity variable when pairing with renal function in later questions**; Killip's non-monotonic pattern makes it noisier for this specific comparison.\n\n**Counter-Argument:** Killip reflects acute hemodynamic congestion at admission, not chronic organ damage — it may simply not be expected to track a chronic marker like GFR as tightly as NYHA does. That's a reason the weak Killip result isn't a flaw, not evidence against the analysis.",
       "status": "Reported finding",
       "section": "Renal function and severity",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         12,
         15
@@ -180,7 +180,7 @@
       "finding": "#### Finding\n\nPatients with GFR<60 have a 44.8% 6-month readmission rate vs. 33.6% for GFR≥60 — an 11.2-point absolute gap, 1.60x higher odds, highly significant (p=0.000001, n=1,945). Cramér's V (0.113) is technically \"small\" by strict convention, but the odds ratio and 11-point gap are a clinically meaningful, real-world-sized effect for a single predictor of a complex outcome.\n\n#### Observation & Implication\n\nUnlike Q2 (severity), renal function shows a real, actionable link to the actual outcome — not just a statistically-significant-but-trivial one. **GFR<60 becomes a confirmed candidate predictor for the Category 4 model and for the Group 6 composite risk score.** Sets up Q4: does this GFR effect hold up independently of NYHA/Killip severity, or is",
       "status": "Reported finding",
       "section": "Renal function and severity",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         16,
         19
@@ -194,7 +194,7 @@
       "finding": "#### Finding\n\nThe observed GFR-readmission gap narrows as NYHA severity rises: 17.8 points at NYHA 2 (40.9% vs 23.1%), 11.0 points at NYHA 3 (44.3% vs 33.3%), and 4.8 points at NYHA 4 (47.0% vs 42.2%). The **NYHA4-specific interaction term is significant** (coef=0.643, p=0.029), but the **omnibus interaction test (both terms jointly) is p=0.086** — a trend, not a confirmed effect at the conventional 0.05 threshold.\n\n#### Observation & Implication\n\nThe pattern is directionally consistent (renal dysfunction's added risk shrinks as baseline severity rises) and one specific contrast clears significance, but the joint test says this isn't a confirmed, blanket interaction — it should be reported as **suggestive, not established**. Practically: a NYHA-2 patient with reduced GFR looks nearly twice as risky as one with normal renal function, which is still worth carrying into Q5's combined risk groups — but the write-up should say \"observed gap narrows with severity (p=0.086 for the interaction),\" not \"GFR and severity interact.\"\n\n**Counter-Argument:** With only 66–136 patients in the smaller NYHA×GFR cells, the omnibus test may simply be underpowered to detect a real interaction at this sample size — the near-significant p=0.086 with a clear monotonic pattern across three ordered groups is worth noting as a limitation of sample size, not necessarily evidence of no interaction.",
       "status": "Reported finding",
       "section": "Renal function and severity",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         20,
         23
@@ -208,7 +208,7 @@
       "finding": "#### Finding\n\nAdding Killip to a NYHA-only model did not provide statistically significant additional information for 6-month readmission (likelihood-ratio p = 0.4775), and model AIC increased from 2581.4 to 2584.9.\nIn contrast, adding GFR to the NYHA + Killip model significantly improved model fit (likelihood-ratio p = 0.000005), with AIC decreasing from 2584.9 to 2565.9.\nAmong the 20 combined profiles with at least 20 patients, observed 6-month readmission rates ranged from 19.0% to 52.4%. Notably, patients classified as NYHA 2 and Killip 1 with GFR <60 had a 51.0% readmission rate (n = 49).\n\n#### Observation & Implication\n\nIn this cohort, Killip did not provide statistically significant additional information beyond NYHA for 6-month readmission, whereas GFR provided significant additional information after accounting for both severity measures.\nThis suggests that renal function captures information about readmission that is not fully represented by admission severity alone. Therefore, NYHA and GFR will be prioritized in subsequent readmission analyses, while Killip will be retained as a secondary severity measure rather than automatically included as an additional predictor.\nThe relatively high readmission rate observed even among the NYHA 2 / Killip 1 / GFR <60 group also suggests that reduced renal function may identify patients whose readmission burden is not apparent from admission severity classifications alone.",
       "status": "Reported finding",
       "section": "Renal function and severity",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         24,
         26
@@ -222,7 +222,7 @@
       "finding": "#### Finding\n\nAmong 1,945 patients, observed 6-month readmission increased with NYHA severity (~29% NYHA 2, ~38% NYHA 3, ~45% NYHA 4). Within individual NYHA classes, however, the pattern across Killip groups was inconsistent — NYHA 2 ranged 22.7%-33.1%, NYHA 3 ranged 35.9%-39.6%, NYHA 4 ranged 38.1%-51.7%, with the direction reversing between classes. The NYHA×Killip interaction was not statistically significant (LR p=0.163), and the interaction model had a slightly higher AIC than the main-effects model (2662.3 vs. 2660.8).\n\n#### Observation & Implication\n\nThe readmission pattern is driven primarily by NYHA; Killip does not show a consistent additional pattern within NYHA classes, and the non-significant interaction indicates insufficient evidence that Killip's relationship with readmission depends on NYHA class in this cohort. Together with Q5, this supports **NYHA as the primary severity variable and GFR as an independent contributor for 6-month readmission specifically** — Killip did not provide statistically significant additional information beyond NYHA for *this outcome*. This does not establish Killip is uninformative generally; Q7 tests it against a different outcome (LOS) directly rather than assuming.\n\n**Counter-Argument:** A non-significant 4-df interaction test doesn't prove no interaction exists — only that this sample lacks power to detect one this size.",
       "status": "Reported finding",
       "section": "Severity and outcomes",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         27,
         30
@@ -236,7 +236,7 @@
       "finding": "#### Finding\n\nNYHA shows a weak but statistically significant relationship with LOS (Kruskal-Wallis p=0.0003). Median LOS is identical for NYHA 2 and 3 (7.0 days), rising only at NYHA 4 (8.0 days); prolonged-LOS rate follows the same pattern (23.8%→21.3%→31.3%, Cramér's V=0.103). Killip shows no relationship with LOS at all (Kruskal-Wallis p=0.707, chi2 p=0.117) — identical median LOS (8.0 days) across all three Killip groups. Given NYHA4's clear separation in the primary output, a targeted follow-up confirms it: NYHA4 vs. NYHA2/3 combined, OR=1.63.\n\n#### Observation & Implication\n\nKillip's lack of contribution now holds for two outcomes (6-month readmission and LOS), each tested directly rather than assumed. NYHA's signal for LOS is weak and concentrated in the NYHA4 group specifically, consistent with the pattern already seen for GFR (Q2) and readmission (Q6): NYHA behaves more like a \"class 4 vs. rest\" flag than a smooth ordinal scale in this cohort. Worth carrying a binary `is_nyha4` flag alongside continuous NYHA into Category 4.\n\n**Counter-Argument:** LOS is shaped by non-clinical factors (bed availability, discharge planning, weekends) not captured here — Killip's null LOS result could partly reflect these confounds diluting a real relationship, not proof of no clinical link.",
       "status": "Reported finding",
       "section": "Severity and outcomes",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         31,
         35
@@ -250,7 +250,7 @@
       "finding": "#### Finding\n\nThe full NYHA breakdown shows a monotonic increase at every follow-up window: 28-day (4.0%→6.4%→9.6%, p=0.0027), 3-month (16.7%→24.3%→30.4%, p<0.0001), and 6-month (29.2%→38.0%→44.6%, p<0.0001) — unlike Q6/Q7, where NYHA 2 vs. 3 sometimes failed to separate, here all three classes separate cleanly at every horizon. Using NYHA4-vs-NYHA2/3 as a common cross-window contrast: 28-day OR=1.71 (95% CI 1.21–2.43), 3-month OR=1.52 (1.22–1.87), 6-month OR=1.45 (1.19–1.76) — all significant (p<0.005).\n\n#### Observation & Implication\n\nThe association between NYHA severity and readmission was observed consistently across all three follow-up periods — directionally consistent, with odds ratios ranging 1.45–1.71, rather than proven statistically identical across windows. The 28-day estimate has a wider confidence interval, reflecting fewer observed events (140 vs. 773 at 6 months), not a weaker underlying relationship. This strengthens the rationale for carrying 6-month readmission forward as the primary predictive target: it isn't an arbitrary choice among three options, it's the window with both the most events and a relationship consistent with what's seen at every other horizon. The next question shifts from severity-alone to whether a combined severity profile identifies patients experiencing *both* prolonged hospitalization and 6-month readmission together.\n\n**Counter-Argument:** No formal test was run comparing whether the three ORs differ significantly from each other — the \"directionally consistent\" claim is a visual/descriptive read of overlapping confidence intervals, not a statistically tested equivalence. A formal test (e.g., interaction between window and NYHA4 status in a pooled model) would be needed to claim the magnitudes are statistically indistinguishable.",
       "status": "Reported finding",
       "section": "Severity and outcomes",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         36,
         39
@@ -264,7 +264,7 @@
       "finding": "### Finding\n\nThe combined outcome (both prolonged LOS and 6-month readmission) occurs in 10.8% of patients overall (211 events). GFR<60 roughly doubles-to-triples the combined-outcome rate within every NYHA class: NYHA2 (14.2% vs 4.7%), NYHA3 (15.2% vs 6.3%), NYHA4 (17.7% vs 8.7%). The highest-risk profile is confirmed as NYHA4+GFR<60 (17.7%), and the lowest is NYHA2+GFR>=60 (4.7%) — a 12.9-point range, chi-square p<0.000001.\n\n### Observation & Implication\n\nNYHA and GFR combine consistently across all three severity levels — GFR<60's effect on the combined outcome doesn't wash out or reverse anywhere, unlike Killip's inconsistent behavior in Q6. This is the cleanest multi-outcome confirmation yet that NYHA+GFR is a coherent risk pairing, not just a readmission-specific one. **The NYHA4+GFR<60 group (n=317, 17.7% combined-outcome rate) is now a concrete, evidence-identified high-risk subgroup** — a strong candidate for the Group 6 integrated risk score and a natural target population for the Category 5 dashboard's follow-up-prioritization use case.\n\n**Counter-Argument:** The smallest cell (NYHA2+GFR>=60, 10 \"both\" events) is thin enough that its 4.7% estimate carries real uncertainty — the overall pattern is robust, but that specific low-end number shouldn't be quoted as precise.",
       "status": "Reported finding",
       "section": "Severity and outcomes",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         40,
         43
@@ -278,7 +278,7 @@
       "finding": "### Finding\n\nAdmission route is unrelated to NYHA severity (p=0.525) — it isn't simply proxying for how sick patients look at admission. It adds nothing to the 6-month readmission model beyond NYHA+GFR (rates are nearly identical: 38.7% vs 38.8%, incremental p=0.730). But it *does* add significantly to the prolonged-LOS model (p=0.008) — counter-intuitively, **Non-Emergency (planned) admissions have a higher prolonged-LOS rate (26.7%) than Emergency admissions (22.1%)**, even after adjusting for NYHA and GFR.\n\n### Observation & Implication\n\nAdmission route is outcome-specific, not a general risk factor: irrelevant to readmission, but a genuine independent contributor to length of stay — in the opposite direction from what \"emergency = sicker = longer stay\" would predict. This suggests non-emergency admissions may involve more extensive planned workups or procedures, or that emergency-admitted patients are discharged faster under bed-pressure/triage dynamics not captured elsewhere in this dataset. Confirms admission route as a legitimate **LOS-specific** candidate feature for Category 4, but not a readmission-risk feature — it shouldn't be added to the Group 6 integrated readmission risk score.\n\n**Counter-Argument:** This dataset doesn't capture *why* someone was admitted non-emergently (e.g., a planned procedure vs. a scheduled HF workup) — the LOS difference may reflect what the admission was *for*, not the admission pathway itself as a risk factor. Without that context, the finding is real but its causal interpretation is limited.",
       "status": "Reported finding",
       "section": "Severity and outcomes",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         44,
         47
@@ -292,7 +292,7 @@
       "finding": "**Findings for Q11**\n\nAcross 1,962 patients with usable BNP and outcome data, six-month readmission was 37.5% in the lowest BNP quartile, 33.5% in the second, 40.8% in the third, and 41.3% in the highest. The rates differ across quartiles (chi-square p = 0.0417), but they do not rise steadily as BNP increases; the rank trend was weak (r = 0.044, p = 0.0536). BNP by itself therefore gives a mixed readmission signal in this cohort.",
       "status": "Reported finding",
       "section": "BNP and combined signals",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         51,
         50,
@@ -307,7 +307,7 @@
       "finding": "**Findings for Q12**\n\nOn the same 1,962 patients, adding BNP to NYHA and Killip reduced cross-validated ROC AUC from 0.558 to 0.548; the Brier score remained 0.234. The adjusted likelihood-ratio comparison also found no clear additional association (p = 0.5244). In this analysis, BNP did not improve separation of patients who were and were not readmitted beyond the two severity grades. Both models had limited discrimination.",
       "status": "Reported finding",
       "section": "BNP and combined signals",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         55,
         54,
@@ -322,7 +322,7 @@
       "finding": "**Findings for Q13**\n\nAmong 1,908 patients with all three markers available, readmission was 28.3% (108/381) when none of the specified signals were present and 44.7% (119/266) when all three were present. Readmission increased across the 0–3 signal count overall (rank r = 0.124, p < 0.001), but the two-signal group already had a similar rate of 44.6%. The individual profiles differ too: higher BNP plus low GFR without the higher-severity flag had a 50.6% observed rate (118/233). These are exploratory groupings, not a validated risk score.",
       "status": "Reported finding",
       "section": "BNP and combined signals",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         59,
         58,
@@ -337,7 +337,7 @@
       "finding": "**Findings for Q14**\n\nReadmission rose across CCI groups: 35.5% (292/822) for CCI 0–1, 37.5% (261/696) for CCI 2, and 44.9% (213/474) for CCI 3 or higher. The group comparison gave p = 0.0029, although the patient-level rank association was small (r = 0.070). Higher recorded comorbidity burden is associated with readmission here; this analysis does not show that CCI causes it.",
       "status": "Reported finding",
       "section": "Comorbidity and age",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         64,
         63,
@@ -352,7 +352,7 @@
       "finding": "**Findings for Q15**\n\nSix-month mortality was 2.5% (21/825) for CCI 0–1, 2.7% (19/698) for CCI 2, and 3.2% (15/473) for CCI 3 or higher. The comparison of CCI 3+ with CCI 0–2 did not show a clear difference (Fisher exact p = 0.5217). Only 55 deaths were available after exclusions, so these subgroup percentages are less stable than the readmission rates. The results do not support a strong mortality conclusion from CCI alone.",
       "status": "Reported finding",
       "section": "Comorbidity and age",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         68,
         67,
@@ -367,7 +367,7 @@
       "finding": "**Findings for Q16**\n\nReadmission was higher among patients flagged for diabetes (45.6% versus 36.3% without it) and moderate-to-severe CKD (45.8% versus 36.2%); COPD showed little difference (37.7% versus 38.6%). Adding these three flags to CCI gave a small cross-validated ROC AUC increase from 0.533 to 0.540, while the Brier score stayed at 0.235. The likelihood-ratio test found an association beyond CCI (p = 0.0125), but the held-out performance gain was modest. The flags warrant further testing, without claiming they make a strong predictive model.",
       "status": "Reported finding",
       "section": "Comorbidity and age",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         72,
         71,
@@ -382,7 +382,7 @@
       "finding": "**Findings for Q17**\n\nReadmission was 34.5% (424/1,228) with neither recorded CKD nor diabetes, 42.9% (127/296) with diabetes only, 43.5% (133/306) with CKD only, and 50.9% (84/165) with both. The both-condition group had the highest observed rate. However, the formal CKD-by-diabetes interaction test was not supported (p = 0.815); the higher rate does not establish an additional combined association beyond the two separate conditions.",
       "status": "Reported finding",
       "section": "Comorbidity and age",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         76,
         75,
@@ -397,7 +397,7 @@
       "finding": "**Findings for Q18**\n\nIn age bands starting below 79, readmission was 43.6% in the higher-severity group versus 34.9% in the lower-severity group. In bands starting at 79 or above, the corresponding rates were 39.2% and 37.3%. Although the observed gaps differ, the age-band-by-severity interaction was not clear statistically (p = 0.1367). The data therefore do not establish that the severity relationship changes with age band; these are recorded age ranges rather than exact ages.",
       "status": "Reported finding",
       "section": "Comorbidity and age",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         80,
         79,
@@ -408,150 +408,140 @@
       "phase": "Prescriptive",
       "number": 19,
       "question": "Is higher medication burden associated with longer hospitalization?",
-      "why": "A higher medication burden typically acts as a proxy indicator for complex multi-morbidities or high acute-severity clinical manifestations during the stay. Managing intricate combinations of treatments requires longer observational cycles, continuous lab evaluation monitoring (e.g., blood gas diagnostics panels), and iterative titration protocols to stabilize the patient safely prior to discharge planning.",
-      "finding": "A higher medication burden typically acts as a proxy indicator for complex multi-morbidities or high acute-severity clinical manifestations during the stay. Managing intricate combinations of treatments requires longer observational cycles, continuous lab evaluation monitoring (e.g., blood gas diagnostics panels), and iterative titration protocols to stabilize the patient safely prior to discharge planning.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Medication burden can reflect the complexity of a patient's clinical management. If patients receiving more medications also experience longer hospital stays, medication burden may provide additional information about hospitalization complexity and may be useful as a candidate feature for subsequent multivariate and predictive analysis. However, medication burden may also reflect underlying disease severity or medications added during a prolonged hospitalization. Therefore, this analysis evaluates **association**, not causation.",
+      "finding": "#### Finding\n\nAmong **2,008 patients**, higher medication burden was associated with longer hospital length of stay.\n\nThe relationship was positive using both correlation measures. Pearson's correlation was **r = 0.196**, while Spearman's rank correlation was **ρ = 0.276 (95% CI: 0.233–0.316)**. The consistency in direction across both measures supports a positive association between medication burden and hospitalization length.\n\nThe unadjusted linear model estimated that each additional medication was associated with approximately **0.65 additional hospital days** (95% CI: **0.51–0.79 days**). However, the model had an **R² of 0.0385**, indicating that medication burden alone explained only about **3.9% of the variation in hospitalization length**.\n\nThe medication-burden quartile analysis showed a similar pattern. Median LOS increased from **7 days** in the lowest medication-burden group to **9 days** in the highest group, with the middle groups having a median LOS of **8 days**.\n\n#### Interpretation\n\nThe findings support an association between higher medication burden and longer hospitalization in this cohort. The effect is statistically precise and directionally consistent across correlation and group-based analyses, but the relatively low R² indicates that medication burden is only one of many factors related to hospitalization duration.\n\nTherefore, medication burden should be viewed as a **candidate explanatory feature**, rather than a standalone determinant of length of stay.\n\n#### Limitation\n\nThis analysis is observational and unadjusted, so it does not establish causality.\n\nIn particular, medication burden may reflect **underlying disease severity, comorbidity, or treatment complexity**. Reverse causation is also possible: patients who remain hospitalized longer may receive additional medications during their hospitalization, creating an association between medication count and LOS without medication burden itself causing the longer stay.\n\n#### How this helps the next analysis\n\nThe finding motivates a multivariable analysis to determine whether medication burden remains associated with hospitalization length **after accounting for relevant measures of disease severity and comorbidity**.\n\nThis will help determine whether medication burden contributes information beyond the patient's underlying clinical complexity and whether it should be retained as a candidate feature for subsequent predictive analysis.",
+      "status": "Reported finding",
       "section": "Medication and treatment",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
         85,
-        87,
-        92
+        97
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 20,
       "question": "Does the association between medication burden and length of stay remain after accounting for admission severity?",
-      "why": "To determine if the association between medication burden and length of stay (LOS) persists independently, we must expand our baseline predictive model into a Multiple Generalized Linear Model (GLM).",
-      "finding": "The association typically remains positive and statistically significant, though the magnitude of the effect size modifies. When you check the regression outputs, the total_drug_count coefficient (\\[\\beta _{drug}\\]) remains significantly greater than zero (P < 0.05). This indicates that medication burden is an independent predictor of hospital resource use, rather than just a passive reflection of initial admission severity.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Q19 found that higher medication burden was associated with longer hospital stays. However, patients with greater admission severity may both require more medications and stay longer. This question checks whether medication burden retains an association with length of stay after accounting for admission severity.",
+      "finding": "#### Finding\nThe medication–length-of-stay association remained almost unchanged after accounting for admission severity. The estimated effect decreased only from **0.648 to 0.644 additional hospital days per medication**, a **0.6% change**, with the adjusted 95% CI remaining positive (**0.501–0.787 days**).\n\nModel R² increased only slightly from **0.039 to 0.041**, indicating that NYHA and Killip added limited explanatory power for length of stay in this analysis.\n\n#### Prescriptive implication\nMedication burden may be useful as an indicator of treatment complexity when considering expected length of stay, even after accounting for admission severity. However, this is an **association, not evidence that medications cause longer stays**. Other factors may contribute to LOS and should be considered in the next analysis.",
+      "status": "Reported finding",
       "section": "Medication and treatment",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        95,
-        97,
-        102
+        98,
+        101
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 21,
       "question": "Which observed treatment patterns are associated with prolonged hospitalization after accounting for admission severity?",
-      "why": "To determine which specific treatment patterns (rather than simple drug quantities) are associated with prolonged hospitalization after controlling for baseline disease severity, we can frame this as a Multiple Logistic Regression framework.",
-      "finding": "Even when comparing two patients admitted with identical baseline severity (e.g., both categorized as Killip Grade II), the choice of treatment pathways maps tightly to ongoing resource use. For instance, the Diuretics + Inotropes pattern typically yields a significantly higher Odds Ratio (\\(OR > 1.0\\)). This occurs because it serves as a proxy marker for complex cardiorenal management hurdles, stubborn volume overload, or fluid titration struggles that unfold mid-stay.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Q20 showed that the medication–length-of-stay association remained almost unchanged after accounting for NYHA and Killip. We therefore examine whether **higher treatment intensity**, measured by the number of distinct medications recorded for a patient, is associated with prolonged hospitalization.",
+      "finding": "#### Finding\n\nProlonged hospitalization was increasingly common with higher treatment intensity. The prolonged-stay rate increased from **22.4% in the lowest medication-burden group to 46.9% in the highest group**, an absolute difference of **24.5 percentage points**.\n\nAfter accounting for NYHA and Killip admission severity, each additional recorded medication was associated with **1.195 times the odds of prolonged hospitalization** (95% CI: **1.146–1.245**).\n\n#### Prescriptive implication\n\nPatients with higher treatment intensity represent a group that may require greater hospitalization and resource planning attention. Medication burden can therefore be considered alongside admission severity when identifying patients with greater expected care complexity.\n\nThis analysis shows an association and does not establish that medications themselves cause longer hospitalization.",
+      "status": "Reported finding",
       "section": "Medication and treatment",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        105,
-        107,
-        112
+        102,
+        107
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 22,
       "question": "Does medication burden identify different 6-month readmission profiles across admission-severity groups?",
-      "why": "To determine whether medication burden identifies distinct 6-month readmission profiles based on a patient's baseline clinical state, we evaluate the interaction between treatment intensity (total_drug_count) and initial admission severity (killip_grade).",
-      "finding": "The medication-readmission relationship exhibits distinct profiles depending on baseline severity. If the interaction terms in the regression output (total_drug_count:C(killip_grade)) display statistically significant coefficients (P < 0.05), it confirms that medication count cannot be interpreted using a simple \"one-size-fits-all\" trend line across the hospital population.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Q21 showed that higher medication burden was associated with prolonged hospitalization even after accounting for NYHA and Killip severity. We now examine whether medication burden is also associated with different **6-month readmission profiles within admission-severity groups**.",
+      "finding": "#### Finding\n\nSix-month readmission rates differed across medication-burden groups within each NYHA severity level, but the differences were not statistically significant.\n\n* **NYHA 2:** readmission ranged from **25.4% to 39.0%**; χ² = 5.17, p = 0.160.\n* **NYHA 3:** readmission ranged from **33.8% to 41.3%**; χ² = 4.08, p = 0.253.\n* **NYHA 4:** readmission ranged from **38.9% to 47.7%**; χ² = 2.70, p = 0.440.\n\nThe descriptive pattern suggests that **higher NYHA severity is associated with higher observed 6-month readmission rates across medication-burden groups**. However, within each severity level, medication-burden groups did not show statistically significant differences in readmission rates.\n\n#### Prescriptive implication\n\nAdmission severity appears more consistently aligned with the observed readmission profile than medication burden within the same severity level. Therefore, **NYHA severity can be considered an important factor when planning post-discharge follow-up**, while medication burden may provide additional context about treatment complexity rather than serving as a standalone readmission indicator.\n\nThis analysis identifies an observed association pattern and does not establish that medication burden or NYHA severity causes readmission.",
+      "status": "Reported finding",
       "section": "Medication and treatment",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        115,
-        117,
-        122
+        108,
+        114
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 23,
       "question": "Is lower sodium associated with higher 28-day readmission?",
-      "why": "To determine whether lower serum sodium levels are associated with an increased risk of early 28-day readmission, we model the binary outcome re_admission_within_28_days against the baseline continuous laboratory marker sodium.",
-      "finding": "In heart failure patients, low serum sodium (hyponatremia, typically defined as < 135 mmol/L) is rarely just a simple dietary or electrolyte anomaly. Instead, it serves as a critical neurohormonal marker reflecting advanced activation of the renin-angiotensin-aldosterone system (RAAS) and non-osmotic hypersecretion of antidiuretic hormone (arginine vasopressin). This leads to dilutional hyponatremia, signaling severe neurohormonal de-stabilization, worsening cardiac output, and fluid retention profiles that increase the likelihood of early re-hospitalization after discharge.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Q22 examined 6-month readmission across medication burden and admission severity. We now examine whether **admission sodium level**, a clinically relevant laboratory measure, is associated with **early 28-day readmission**.",
+      "finding": "#### Finding\n\nLower sodium was associated with higher observed 28-day readmission. The 28-day readmission rate decreased from **11.3% in the lowest sodium group** to **2.9% in the highest group**, an **8.4 percentage-point difference**.\n\nThe association was statistically significant (**χ² = 28.35, p < 0.001**). The point-biserial correlation was also negative (**r = -0.111, p < 0.001**), supporting the inverse relationship between sodium level and early readmission.\n\nReadmitted patients had a lower mean sodium (**136.27**) than patients without 28-day readmission (**138.39**).\n\n#### Prescriptive implication\n\nLower admission sodium identifies a group with a higher observed rate of early readmission and may therefore be useful as an additional factor when considering **post-discharge monitoring and follow-up intensity**.\n\nThis analysis shows an association and does not establish that low sodium causes readmission.",
+      "status": "Reported finding",
       "section": "Additional clinical signals",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        126,
-        128,
-        133
+        116,
+        120
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 24,
       "question": "Does sodium provide additional information about 28-day readmission beyond NYHA and Killip?",
-      "why": "Advanced NYHA classes and Killip grades classify structural heart limitations and immediate congestion severity at entry, hyponatremia acts as a dynamic laboratory proxy for persistent neurohormonal overactivation (such as excessive arginine vasopressin and RAAS stimulation). This means a patient can be classified as a moderate admission risk (e.g., Killip Grade II) but possess a significantly higher risk of early re-hospitalization if their fluid-electrolyte equilibrium remains uncorrected at discharge.",
-      "finding": "Evaluating the P-Value Output: If the Likelihood Ratio Test returns a P-value \\[<0.05\\], we reject the null hypothesis. This confirms that adding sodium significantly increases the model's log-likelihood, providing statistical verification that sodium supplies predictive insights that NYHA and Killip grids cannot account for on their own.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Q23 showed that lower admission sodium was associated with higher 28-day readmission. However, patients with greater admission severity may also have lower sodium and higher readmission. This question checks whether sodium provides additional information after accounting for **NYHA and Killip**.",
+      "finding": "#### Finding\nLower sodium remained associated with higher 28-day readmission after accounting for NYHA and Killip admission severity.\n\nThe odds ratio for sodium was **0.930** (95% CI: **0.903–0.957**) in the sodium-only model and **0.933** (95% CI: **0.905–0.961**) after adjustment. Both associations were statistically significant (**p < 0.001**).\n\nThe sodium effect changed only slightly after adjustment, indicating that the association observed in Q23 was **not substantially explained by NYHA or Killip differences**.\n\n### Prescriptive implication\nAdmission sodium provides additional information about the observed 28-day readmission profile beyond the admission-severity measures used here. Lower sodium may therefore be considered alongside **NYHA and Killip** when identifying patients who may warrant closer post-discharge follow-up.\n\nThis remains an association and does not establish that low sodium causes readmission.",
+      "status": "Reported finding",
       "section": "Additional clinical signals",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        136,
-        139,
-        142
+        121,
+        126
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 25,
       "question": "Is reduced renal function associated with prolonged hospitalization?",
-      "why": "If reduced renal function is associated with a prolonged hospitalization duration, we map renal capacity—measured continuously via the Glomerular Filtration Rate (glomerular_filtration_rate)—against the binary indicator for a prolonged hospital stay (defined as a Length of Stay above the 75th percentile threshold of dischargeday).",
-      "finding": "Reduced renal function acts as an immediate driver of prolonged hospitalization because it complicates cardiorenal hemodynamic management. During an acute heart failure stay, aggressive loop-diuretic protocols needed to clear pulmonary congestion frequently induce acute kidney injury (AKI) spikes or transient metabolic instability in patients with low baseline GFR. Managing this cardiorenal syndrome requires slower, titrated therapy adjustments, daily creatinine loop tests, and longer recovery windows to safely optimize fluid status without inducing complete renal failure.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Previous analyses identified treatment intensity and admission severity as factors associated with longer hospitalization. Renal function is another clinically relevant factor that may be associated with hospital resource use, particularly in heart-failure patients.",
+      "finding": "#### Finding\nReduced renal function was associated with a higher rate of prolonged hospitalization.\n\nThe prolonged-stay rate was **44.1% in the lowest GFR group** compared with **24.5% in the highest GFR group**, an absolute difference of **19.6 percentage points**.\n\nThe association between GFR group and prolonged hospitalization was statistically significant (**χ² = 57.26, p < 0.001**).\n\n#### Prescriptive implication\nPatients with lower renal function showed a substantially higher observed rate of prolonged hospitalization. **Renal function can therefore provide additional context for hospitalization and resource planning**, particularly when identifying patients who may require greater care coordination.\n\nThis analysis demonstrates an association and does not establish that reduced renal function causes longer hospitalization.",
+      "status": "Reported finding",
       "section": "Additional clinical signals",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        145,
-        147,
-        152
+        127,
+        132
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 26,
       "question": "Do abnormal respiratory indicators identify patients with higher hospitalization or readmission risk?",
-      "why": "In patients hospitalized with cardiac failure, respiratory compromise reflects the physiological severity of pulmonary congestion and alveolar fluid accumulation. The requirement for advanced respiratory support or the manifestation of abnormal blood gas chemistry signifies a high-severity clinical tier. These patients require prolonged titration cycles of vasodilators, positive inotropes, or intensive diuresis to achieve hemodynamic stability, and they remain highly vulnerable to early post-discharge destabilization.",
-      "finding": "Escalation to Mechanical Support typically displays a massive, statistically significant Odds Ratio (\\(OR \\gg 1.0\\)) within the Prolonged Hospitalization model. This acts as a strong operational indicator for acute decompensation. Patients requiring positive pressure ventilation require careful, incremental weaning windows, continuous laboratory tracking (such as arterial blood gas metrics), and protective observation cycles that mechanically prolong their ward stay.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Respiratory compromise in heart failure usually reflects decompensation severe enough to impair gas exchange (cardiogenic pulmonary edema, respiratory muscle fatigue). This population is clinically expected to need more intensive in-hospital care. Whether it *also* predicts readmission specifically — separate from death, which competes with readmission as an outcome — is the less obvious part of the question.",
+      "finding": "**Evidence / What We Found**\n\n| Outcome | Abnormal resp (n=140) | Normal resp (n=1,868) | Test | p |\n|---|---|---|---|---|\n| LOS (median, IQR) | 9.0 (6–13) | 8.0 (6–10) | Mann-Whitney | **0.013** |\n| 6-month readmission rate | 32.9% | 38.9% | χ² | 0.183 (n.s.) |\n| 6-month death rate | **12.9%** | 2.1% | Fisher's exact | **1.6e-08** |\n\nBlood-gas triangulation (SpO₂ < 90%, n=61/993): 6-month death 11.5% vs 3.3% (Fisher p = 0.0065) — same direction, same magnitude, independent of the diagnosis-flag construction.\n\nAbnormal respiratory status is strongly associated with longer index hospitalization and much higher mortality — but **not** with higher readmission; the point estimate even runs slightly the other way. Mechanically: of the 18 abnormal-resp patients who died within 6 months, **zero** were also readmitted — a patient who dies cannot be readmitted. This is a competing-risks effect, not evidence that respiratory failure lowers readmission risk.\n\n**Why It Matters**\nReading the readmission number alone would produce a wrong, clinically dangerous conclusion (\"respiratory failure is protective against readmission\"). It isn't — the risk is real but expressed as death before readmission has a chance to occur. This argues for a combined mortality-or-readmission endpoint (or a competing-risks/survival model) in Category 4, rather than treating death and",
+      "status": "Measured association; readmission and death are competing outcomes",
       "section": "Additional clinical signals",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        155,
-        158,
-        163
+        133,
+        135
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 27,
       "question": "Does reduced hematological status identify a distinct prolonged-stay or 6-month readmission profile?",
-      "why": "In cardiac failure, a reduced hematological status (severe anemia) triggers a dangerous cardiorenal-anemia syndrome cycle. When hemoglobin and hematocrit plunge, the blood's oxygen-carrying capacity drops, forcing an already failing heart to increase its stroke volume and heart rate to maintain tissue perfusion. This chronic myocardial workload, coupled with systemic hypoxia, accelerates tissue ischemia, blunts the response to diuretic therapies, worsens congestion, and significantly drives up both immediate hospital resource use and long-term post-discharge vulnerability.",
-      "finding": "The key to this analysis lies in checking the p-values for the hemoglobin parameter in both regression tables. When the parameter displays a statistically significant negative coefficient (β < 0, P < 0.05), it proves that hematological status carries independent explanatory power. It demonstrates that anemia is not merely a downstream byproduct of chronic kidney disease (low GFR) or advanced physical deconditioning (NYHA Class)—it is an independent driver of risk.",
-      "status": "Interpretive notebook text; verify against model output",
+      "why": "Anemia of chronic disease is common in heart failure and is a known marker of disease burden. Unlike Q26's respiratory flags (acute, low-prevalence, mortality-dominant), anemia is chronic and highly prevalent — worth checking whether it produces a *different* risk signature (e.g., readmission-driven rather than death-driven), which would justify treating it as a separate feature rather than a redundant severity proxy.",
+      "finding": "**Evidence / What We Found**\n\n| Outcome | Anemic (n=1,205) | Non-anemic (n=775) | Test | p |\n|---|---|---|---|---|\n| LOS (median, IQR) | 8.0 (6–11) | 8.0 (6–10) | Mann-Whitney | 0.109 (n.s.) |\n| 6-month readmission | **40.7%** | 35.4% | χ² | **0.018** |\n| 6-month death | 3.1% | 2.5% | Fisher's exact | 0.488 (n.s.) |\n\nSeverity gradient tells the sharper story:\n- **Readmission** rises monotonically: 35.4% (none) → 40.4% (mild) → 40.7% (moderate) → 42.0% (severe). Spearman trend p = **0.022**.\n- **Death** is flat across none/mild/moderate (~2.4–2.5%) and only jumps at the severe tail: **6.8%** vs 2.4% for everyone else, Fisher p = **0.0029**.\n\nThis is a genuinely distinct profile from Q26. Respiratory abnormality was LOS + mortality dominant with no readmission signal. Anemia is readmission-dominant across its full range, with mortality risk concentrated only in the severe tail — the two features are not redundant.\n\n**Why It Matters**\nAnemia and respiratory status carry different, complementary predictive information rather than both just tagging \"sicker patients.\" For Category 4, anemia (or hemoglobin as continuous) is a stronger candidate feature for a **readmission** model, while respiratory status is a stronger candidate for a **mortality** model — supports building separate endpoint models rather than one generic \"bad outcome\" target.\n\n**Follow-Up Question**\nDoes adding anemia severity as an ordinal feature alongside NYHA/Killip meaningfully improve a 6-month readmission model's discrimination (ROC/AUC), or is its signal already captured by existing severity markers?",
+      "status": "Measured association; readmission and death are competing outcomes",
       "section": "Additional clinical signals",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        166,
-        169,
-        174
+        136,
+        138
       ]
     },
     {
       "phase": "Prescriptive",
       "number": 28,
-      "question": "Is discharge against medical order associated with higher 28-day or 6-month readmission?",
-      "why": "**Why**: Discharge pathway is different from physiological severity and treatment intensity. Including it allows us to examine whether the discharge process is associated with subsequent utilization.",
-      "finding": "The recorded `destination_discharge` categories are Home, Healthcare Facility, Unknown, and Died. There are **zero** records labeled 'Against Medical Advice' in that field, so the stated comparison cannot be estimated from this column. The notebook prints NaN for that group. Its conditional conclusion is not an observed result. The separate `outcome_during_hospitalization` field may support a revised question after review.",
-      "status": "Cannot answer as written",
+      "question": "How does discharge destination relate to 6-month readmission?",
+      "why": "Q22 examined readmission in relation to medication burden and admission severity. Discharge destination provides additional information about the patient's post-hospital care setting and may reveal differences in observed 6-month readmission patterns.",
+      "finding": "#### Finding\nSix-month readmission rates varied significantly by discharge destination (**χ² = 20.08, p < 0.001**).\n\nThe highest observed 6-month readmission rate was among patients discharged to a **Healthcare Facility (41.1%)**, followed closely by **Home (39.7%)**. The rate was lower among patients with an **Unknown destination (28.3%)**.\n\nThe **Died** group had 0% readmission, but this group contained only **14 patients**, so the result should not be interpreted as a meaningful comparison of readmission risk.\n\n#### Prescriptive implication\n\nDischarge destination provides useful context for **post-discharge follow-up planning**. Patients discharged to healthcare facilities or home had higher observed 6-month readmission rates than those with an unknown destination, indicating that discharge setting may help identify different follow-up needs.\n\nThis analysis identifies an association between discharge destination and observed readmission patterns; it does not establish that discharge destination causes readmission.",
+      "status": "Measured association; discharge is known after admission",
       "section": "Discharge and integrated risk",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        178,
-        179,
-        194
+        140,
+        150
       ]
     },
     {
@@ -562,11 +552,11 @@
       "finding": "The notebook output reports 5-fold out-of-fold ROC AUC **0.556** for NYHA + Killip and **0.578** for the integrated framework (increase **0.022**). Observed six-month readmission was **44.12% vs 32.87%** in its integrated higher- and lower-risk halves. These estimates come from the prescriptive notebook, which uses the full cohort to construct out-of-fold groups; they are not the held-out predictive Q1 metrics.",
       "status": "Measured notebook result; narrative cell is conditional",
       "section": "Discharge and integrated risk",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        196,
-        197,
-        271
+        152,
+        153,
+        227
       ]
     },
     {
@@ -575,41 +565,78 @@
       "question": "Can the strongest factors identified in Category 3 be combined into an interpretable risk- stratification framework, and what does the observed outcome distribution imply for the Category 4 predictive target and evaluation strategy?",
       "why": "**Why**: The purpose of Category 3 is not simply to find associations; it should establish evidence for the next analytical stage. We need to use the observed event patterns to determine which outcome is sufficiently represented for predictive modeling and which features have analytical justification.",
       "finding": "**Finding**: The Category 3 analysis identified cardiac severity, BNP, renal function, and comorbidity burden as candidate features for an integrated risk-stratification framework. Examination of the 6-month outcome distribution shows that readmission is more frequently observed than mortality, providing a larger event group for predictive modeling.",
-      "status": "Interpretive finding",
+      "status": "Interpretive finding; compare with the final predictive notebook",
       "section": "Discharge and integrated risk",
-      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis (1).ipynb",
+      "source_notebook": "Team11_PyInsights_03.Prescriptive Analysis(1).ipynb",
       "source_cells": [
-        273,
-        274,
-        307
+        229,
+        230,
+        263
       ]
     },
     {
       "phase": "Predictive",
       "number": 1,
       "question": "Can initial-admission information predict readmission within six months?",
-      "why": "Predict risk at initial admission, then test on patients held out from training.",
+      "why": "Predict risk at initial admission; evaluate on patients held out from training.",
       "finding": "## Findings — results from the team's actual `patient_master.csv`\n\n**Data used:** The uploaded master contained **2,008 unique patients, 198 columns, and 773 recorded six-month readmissions (38.5%)**. The outcome was recorded for everyone. We trained on **1,506** patients and evaluated once on **502** held-out patients, of whom **193 (38.4%)** were readmitted. Missing values in selected predictors were imputed using the training patients only.\n\n**Did admission features improve prediction?** There was a small improvement in **ranking** patients, but the wider model's absolute probability error was slightly worse than the constant-risk prediction:\n\n| Held-out test measure | Constant risk | NYHA + Killip | Wider admission model |\n|---|---:|---:|---:|\n| ROC AUC (higher is better) | 0.500 | 0.515 | **0.540** |\n| Average precision (higher is better) | 0.384 | 0.400 | **0.429** |\n| Brier score (lower is better) | **0.237** | 0.238 | 0.238 |\n\nThe wider model was slightly better at sorting patients by readmission risk, but **0.540 ROC AUC is only modestly above chance (0.500)**. The Brier scores before rounding were **0.2384** for the wider model and **0.2367** for the constant-risk baseline: this test gives no evidence of better overall probability accuracy. The dummy model's average precision equals the held-out readmission frequency (0.384).\n\n**What happened at the chosen cutoff?** At the prespecified **0.50** probability cutoff, the model correctly flagged **27 of 193** patients who were readmitted (**recall 14.0%**). It **missed 166**, and **33 of its 60 positive alerts** were for patients who were not readmitted (**precision 45.0%**). The confusion matrix and plot show these counts. Lowering the alert threshold would identify more readmissions, but would also create more false alerts; that tradeoff needs a purpose and should be selected without tuning on this test set.\n\n**What did the calibration plot show?** Among **290** test patients assigned an average predicted risk of **32.8%** in the 20–40% bin, **35.5%** were readmitted. Among **196** assigned an average risk of **47.3%** in the 40–60% bin, **42.3%** were readmitted. The other occupied bins had only **7** and **9** patients, so they cannot support strong conclusions about calibration. Together with the Brier result, the plot does not establish reliable probabilities.\n\n**Connection to our earlier analysis:** Descriptive Q5 established the 38.5% readmission rate. Prescriptive Q12 found that adding BNP to NYHA and Killip did not improve its five-fold cross-validated AUC (0.558 to 0.548); Q16 found only a small AUC increase (0.533 to 0.540) from adding comorbidity flags to CCI. Our predictive analysis likewise finds limited performance on new held-out patients. These are **different evaluations and feature sets**; their AUC values should not be treated as direct like-for-like model comparisons.\n\n**Conclusion and counterargument:** We found a weak predictive signal, **not a reliable admission screening tool**. Even a group-level relationship can provide little individual-level predictive value. Readmission depends on follow-up care and circumstances not included here, and death can prevent readmission. This is an internal random split from one hospital, not proof that the model transfers to another setting. Check predictor timestamps and test a frozen model on later or external patients before considering clinical use. Predictive association does not show that changing any one factor would prevent readmission.\n\n**Presentation wording:** “We asked whether information available at admission could identify patients who would be readmitted within six months. We used the cleaned master, held out one quarter of the patients, and compared a wider admission model with NYHA–Killip alone and a constant-risk baseline. The wider model ranked patients a little better, with an AUC of 0.540, but it missed 166 of 193 readmissions at a 50% alert threshold and did not improve probability accuracy over the baseline. We would describe this as a weak early signal that needs better predictors and validation, not a ready-to-use hospital risk score.”",
-      "status": "Held-out model result",
-      "section": "Lakshmi",
-      "source_notebook": "Team11_PyInsights_04_Predictive_Combined.ipynb",
+      "status": "Held-out test result",
+      "section": "Six-month readmission",
+      "source_notebook": "Team11_PyInsights_04.Predictive Analysis.ipynb",
       "source_cells": [
         7,
-        23
+        24
       ]
     },
     {
       "phase": "Predictive",
       "number": 2,
       "question": "Can initial-admission information predict readmission within 28 days?",
-      "why": "Predict risk at initial admission, then test on patients held out from training.",
-      "finding": "### Final Finding\nAfter resolving collinearity in the initial feature set (removing\ncomorbidity flags redundant with cci_score, replacing systolic/diastolic\nblood pressure with pulse pressure, and collapsing sparse age categories\ninto 4 bands), the selected Random Forest model was evaluated on an\nuntouched test set (497 patients, 34 readmission events, 6.8% base\nrate). The model achieved:\n- ROC-AUC: **0.619**\n- precision-recall AUC: **0.163**\n- Brier score: **0.152**\n- recall: **76.5%**\n- specificity: **36.9%**\n- precision: **8.2%**\n\nAt the training-selected probability threshold of **0.319**, the model\nidentified **26** of **34** readmitted patients while flagging **64.0%**\nof the test set as higher risk — a meaningfully more usable\nrisk-stratification tool than the pre-fix version, which needed to flag\n84-92% of patients to reach similar recall.\n\nThe logistic-regression coefficients used for interpretation now show\nclinically consistent directions throughout: higher NYHA class, higher\nKillip grade, and higher CCI score are associated with increased risk;\nhigher GFR (better renal function) is associated with decreased risk.\nLVEF shows a small positive association, which is counter to the naive\nexpectation but consistent with the known elevated readmission risk in\nheart-failure-with-preserved-ejection-fraction (HFpEF) patients.\n\n### Interpretation\nResolving the collinearity between cci_score and its component\nconditions, and between systolic and diastolic blood pressure, improved\nboth discrimination (PR-AUC 0.108 -> 0.163) and the interpretability of\nthe model's drivers. This confirms that the original weak result was\npartly a feature-engineering artifact, not solely a ceiling on the\npredictive value of admission-time information. Discrimination remains\nmodest, appropriate for a 6.8%-prevalence outcome with 137 total events\navailable for training, but the model now identifies a genuinely\nusable high-risk subgroup rather than a near-universal flag.\n\n### Hypothesis Decision\nReject H0: admission-time severity, renal function, and comorbidity\nmarkers provide real, clinically consistent discrimination between\npatients who will and will not be readmitted within 28 days, exceeding\nboth the non-informative baseline and the outcome's base rate by a\npractically meaningful margin. The model's absolute discrimination is\nmodest, appropriate to state as a limitation, not a reason to fail to\nreject.",
-      "status": "Held-out model result",
-      "section": "Shraddha",
-      "source_notebook": "Team11_PyInsights_04_Predictive_Combined.ipynb",
+      "why": "Predict risk at initial admission; evaluate on patients held out from training.",
+      "finding": "### Final Finding\nAfter resolving collinearity in the initial feature set (removing\ncomorbidity flags redundant with cci_score, replacing systolic/diastolic\nblood pressure with pulse pressure, and collapsing sparse age categories\ninto 4 bands), the selected Random Forest model was evaluated on an\nuntouched test set (497 patients, 34 readmission events, 6.8% base\nrate). The model achieved:\n- ROC-AUC: **0.619**\n- precision-recall AUC: **0.163**\n- Brier score: **0.152**\n- recall: **76.5%**\n- specificity: **36.9%**\n- precision: **8.2%**\n\nAt the training-selected probability threshold of **0.319**, the model\nidentified **26** of **34** readmitted patients while flagging **64.0%**\nof the test set as higher risk — a meaningfully more usable\nrisk-stratification tool than the pre-fix version, which needed to flag\n84-92% of patients to reach similar recall.\n\nThe logistic-regression coefficients used for interpretation now show\nclinically consistent directions throughout: higher NYHA class, higher\nKillip grade, and higher CCI score are associated with increased risk;\nhigher GFR (better renal function) is associated with decreased risk.\nLVEF shows a small positive association, which is counter to the naive\nexpectation but consistent with the known elevated readmission risk in\nheart-failure-with-preserved-ejection-fraction (HFpEF) patients.\n\n### Interpretation\nResolving the collinearity between cci_score and its component\nconditions, and between systolic and diastolic blood pressure, improved\nboth discrimination (PR-AUC 0.108 -> 0.163) and the interpretability of\nthe model's drivers. This confirms that the original weak result was\npartly a feature-engineering artifact, not solely a ceiling on the\npredictive value of admission-time information. Discrimination remains\nmodest, appropriate for a 6.8%-prevalence outcome with 137 total events\navailable for training, but the model now identifies a genuinely\nusable high-risk subgroup rather than a near-universal flag.\n\n### Hypothesis Decision\n**Reject H0, with a cautious interpretation.** The model shows preliminary predictive signal beyond the non-informative baseline: admission-time severity, renal function and comorbidity markers rank readmitted patients above non-readmitted patients more often than chance, with clinically consistent directions.\n\nIts **practical usefulness is not yet established**: ROC-AUC is modest (0.619), precision is 8.2%, and reaching 76.5% recall requires flagging 64% of patients. No confidence interval is available for the improvement over baseline. We therefore describe the result as *preliminary predictive signal with limited operational precision*, not as a ready-to-use screening tool.",
+      "status": "Held-out test result",
+      "section": "28-day readmission",
+      "source_notebook": "Team11_PyInsights_04.Predictive Analysis.ipynb",
       "source_cells": [
-        25,
-        59
+        26,
+        60
+      ]
+    },
+    {
+      "phase": "Predictive",
+      "number": 3,
+      "question": "Can initial-admission information predict a prolonged hospital stay (>10 days)?",
+      "why": "Use only information available at admission, and compare a model with simple baselines on patients kept out of each training fold.",
+      "finding": "**Definition and sample:** Stay over 10 days; 498 of 2,008 patients (24.8%). The final model's 5-fold out-of-fold ROC AUC was **0.663**, versus **0.545** for NYHA + Killip alone and **0.499** for a prevalence baseline. Average precision was **0.388**. At the notebook's 0.50 threshold, precision was **0.364** and recall **0.572**. The higher predicted-risk group had a **36.4%** observed prolonged-stay rate (285/784), versus **17.4%** (213/1,224) in the lower group. The notebook calls discrimination modest and below its preselected 0.70 target; this is an internal cross-validated result, not a prospectively validated individual forecast.",
+      "status": "Internal cross-validation result",
+      "section": "Prolonged hospital stay",
+      "source_notebook": "Team11_PyInsights_04.Predictive Analysis.ipynb",
+      "source_cells": [
+        63,
+        112,
+        72,
+        79,
+        111,
+        114,
+        136
+      ]
+    },
+    {
+      "phase": "Predictive",
+      "number": 4,
+      "question": "Can initial-admission information predict death within six months?",
+      "why": "Use only information available at admission, and compare a model with simple baselines on patients kept out of each training fold.",
+      "finding": "**Definition and sample:** 57 of 2,008 patients died within six months (2.84%). The admission model's mean ROC AUC over 5 folds × 10 repeats was **0.795** (severity-only **0.742**, prevalence baseline **0.489**), with mean PR AUC **0.186**. For probabilities averaged across repeats, the bootstrap AUC estimate was **0.797** (95% CI **0.731–0.860**); the added AUC versus severity was **0.073** (95% CI **0.020–0.124**). Flagging the top 20% (402 patients) captured **36 of 57 deaths** (63.2%); precision was about **9.0%**. This is internal validation in one hospital with only 57 deaths and does not establish clinical readiness.\n\n**Decision:** we **reject H₀**. Admission-time information discriminates between patients who die within six months and those who survive, well beyond chance, and labs plus comorbidity burden add measurable value over bedside severity alone.\n\n**How strongly we state it:** this is **internally cross-validated evidence from a single hospital**, not proof that the model would work elsewhere. The discrimination is good (AUC ≈ 0.79) and the model is well calibrated within this cohort, but precision is low because the outcome is rare. The appropriate claim is: *the model is a credible candidate for risk-based prioritisation, pending external validation* — not a ready-to-deploy clinical tool.",
+      "status": "Internal cross-validation result",
+      "section": "Six-month mortality",
+      "source_notebook": "Team11_PyInsights_04.Predictive Analysis.ipynb",
+      "source_cells": [
+        146,
+        194,
+        153,
+        175,
+        178,
+        181
       ]
     }
   ]

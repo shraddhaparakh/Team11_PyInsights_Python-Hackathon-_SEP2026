@@ -1,6 +1,6 @@
 """Team 11 PyInsights heart-failure dashboard.
 
-Run with: streamlit run Team11_PyInsights_05_Dashboard.py
+Run with: streamlit run Team11_PyInsights_05.Dashboard.py
 Charts recalculate from the team's cleaned patient_master.csv. The companion
 findings JSON preserves the question write-ups from the team's final notebooks.
 """
@@ -16,16 +16,12 @@ import streamlit as st
 
 st.set_page_config(page_title="PyInsights | Heart failure", page_icon="♥", layout="wide")
 
-# Keep the team's path names. Place this file in the cardiac_failure folder,
-# or leave the known Mac path in place. The local-folder fallback helps teammates.
-DATA_PATH = Path(r"/Users/manasvi.panchagnula/Desktop/Python_Hackathon_Sep_2026/cardiac_failure")
+# Put this script and its findings JSON in the project folder, with the master
+# CSV inside a cleaned_data subfolder. This works on each teammate's computer.
+DATA_PATH = Path(__file__).resolve().parent
 CLEANED_PATH = DATA_PATH / "cleaned_data"
 MASTER_PATH = CLEANED_PATH / "patient_master.csv"
-if not MASTER_PATH.is_file():
-    DATA_PATH = Path(__file__).resolve().parent
-    CLEANED_PATH = DATA_PATH / "cleaned_data"
-    MASTER_PATH = CLEANED_PATH / "patient_master.csv"
-FINDINGS_PATH = Path(__file__).resolve().with_name("Team11_PyInsights_05_Findings.json")
+FINDINGS_PATH = Path(__file__).resolve().with_name("Team11_PyInsights_05.Findings.json")
 
 COLORS = {"navy": "#183153", "blue": "#3975B7", "teal": "#168A83",
           "amber": "#D9923B", "red": "#B65359", "light": "#E8EFF5"}
@@ -145,7 +141,7 @@ def read_findings(path: str, modified_at: float):
         entries = json.load(handle)["questions"]
     counts = {phase: sum(entry["phase"] == phase for entry in entries)
               for phase in ("Descriptive", "Prescriptive", "Predictive")}
-    if counts != {"Descriptive": 10, "Prescriptive": 30, "Predictive": 2}:
+    if counts != {"Descriptive": 10, "Prescriptive": 30, "Predictive": 4}:
         raise ValueError(f"Question catalogue is incomplete: {counts}")
     return entries
 
@@ -220,11 +216,11 @@ except (ValueError, OSError, json.JSONDecodeError) as exc:
     st.stop()
 
 st.title("Heart failure patient insights")
-st.caption("Team 11 PyInsights · 10 descriptive, 30 prescriptive and 4 planned predictive questions")
+st.caption("Team 11 PyInsights · 10 descriptive, 30 prescriptive and 4 completed predictive questions")
 st.markdown("**Explore the patient profile, subgroup comparisons, and admission-time prediction questions.**")
 
-# Only the descriptive tabs respond to these filters. Notebook model metrics
-# were evaluated on their original held-out test sets and do not change here.
+# The cohort and group charts respond to filters. Notebook model metrics are
+# snapshots of their original held-out or cross-validated evaluations.
 st.sidebar.header("Explore a patient group")
 ages = sorted(df["age_category"].dropna().astype(str).unique().tolist())
 genders = sorted(df["gender"].dropna().astype(str).unique().tolist())
@@ -347,63 +343,93 @@ with descriptive:
 
 with prescriptive:
     st.subheader("Which patient groups have different observed outcomes?")
-    st.caption("The charts below use the sidebar selection and omit contradictory event-timing records. The question browser contains the team's original full-cohort analysis. These are associations, not tested interventions.")
+    st.caption("Charts recalculate from the sidebar selection. The question browser contains the final notebook's full-cohort analyses; those findings do not change with filters. These are associations, not tested interventions.")
+    prescriptive_view = st.selectbox("Choose a patient-group comparison", [
+        "Comorbidity score and diagnoses", "Kidney function and discharge destination"
+    ], key="prescriptive_view")
     left, right = st.columns(2)
-    with left:
-        cci = grouped_rates(cci_groups(group_data), "CCI group",
-                            "re_admission_within_6_months",
-                            ["CCI 0–1", "CCI 2", "CCI 3+"])
-        fig = plot_rates(cci, "CCI group", "Six-month readmission by comorbidity score", COLORS["amber"])
-        show_figure(fig)
-    with right:
-        profiles = grouped_rates(comorbidity_profiles(group_data), "CKD + diabetes",
-                                 "re_admission_within_6_months",
-                                 ["Neither", "Diabetes only", "CKD only", "Both"])
-        fig = plot_rates(profiles, "CKD + diabetes", "Six-month readmission by recorded diagnoses", COLORS["blue"])
-        show_figure(fig)
-    st.markdown("**How to read the charts:** each label gives a rate and its event/patient count. Small filtered groups can have unstable percentages. The team's multivariate notebook tests whether associations remain after accounting for other recorded factors.")
+    if prescriptive_view == "Comorbidity score and diagnoses":
+        with left:
+            cci = grouped_rates(cci_groups(group_data), "CCI group",
+                                "re_admission_within_6_months",
+                                ["CCI 0–1", "CCI 2", "CCI 3+"])
+            show_figure(plot_rates(cci, "CCI group", "Six-month readmission by comorbidity score", COLORS["amber"]))
+        with right:
+            profiles = grouped_rates(comorbidity_profiles(group_data), "CKD + diabetes",
+                                     "re_admission_within_6_months",
+                                     ["Neither", "Diabetes only", "CKD only", "Both"])
+            show_figure(plot_rates(profiles, "CKD + diabetes", "Six-month readmission by recorded diagnoses", COLORS["blue"]))
+    else:
+        # Admission GFR and discharge destination have different measurement
+        # times. Died during admission is not a post-discharge risk group.
+        renal_data = group_data.copy()
+        gfr = pd.to_numeric(renal_data["glomerular_filtration_rate"], errors="coerce")
+        renal_data["GFR group"] = np.where(gfr < 60, "GFR <60", "GFR ≥60")
+        renal_data.loc[gfr.isna(), "GFR group"] = np.nan
+        renal = grouped_rates(renal_data, "GFR group", "re_admission_within_6_months",
+                              ["GFR ≥60", "GFR <60"])
+        discharge_data = filtered.loc[filtered["destination_discharge"] != "Died"]
+        discharge = grouped_rates(discharge_data, "destination_discharge",
+                                  "re_admission_within_6_months",
+                                  ["Unknown", "Home", "Healthcare Facility"])
+        with left:
+            show_figure(plot_rates(renal, "GFR group", "Six-month readmission by kidney function", COLORS["teal"]))
+        with right:
+            show_figure(plot_rates(discharge, "destination_discharge", "Six-month readmission by discharge destination", COLORS["amber"]))
+        st.caption("GFR is a measured kidney-function estimate. Discharge destination is known later, so its chart is descriptive and cannot be used as an initial-admission model input. The 14 patients recorded as 'Died' at discharge are excluded from this comparison.")
+    st.markdown("**How to read the charts:** each label gives a rate and its event/patient count. Small filtered groups can have unstable percentages.")
     with st.expander("View underlying group counts"):
-        st.dataframe(cci.round(1), use_container_width=True, hide_index=True)
-        st.dataframe(profiles.round(1), use_container_width=True, hide_index=True)
+        if prescriptive_view == "Comorbidity score and diagnoses":
+            st.dataframe(cci.round(1), use_container_width=True, hide_index=True)
+            st.dataframe(profiles.round(1), use_container_width=True, hide_index=True)
+        else:
+            st.dataframe(renal.round(1), use_container_width=True, hide_index=True)
+            st.dataframe(discharge.round(1), use_container_width=True, hide_index=True)
     st.divider()
     st.markdown("### All prescriptive questions and findings")
-    st.caption("Some later notebook cells discuss expected directions without reporting a checked estimate. Their status is labeled in the question view. Q28 cannot be answered from its stated discharge field.")
+    st.caption("The browser follows the final prescriptive notebook, including revised measured findings for Q19–Q28. Q29 and Q30 are exploratory bridges to predictive analysis.")
     question_browser(findings, "Prescriptive", "prescriptive")
 
 with prediction:
-    st.subheader("Predictive questions and current results")
-    st.caption("Notebook results below are fixed snapshots from the full-cohort analysis; sidebar filters do not refit models or change these test results.")
+    st.subheader("Four admission-time prediction questions")
+    st.caption("These are measured results from the final predictive notebook. Sidebar filters do not refit models or change the original evaluation results.")
     p1, p2 = st.columns(2)
     with p1:
-        st.markdown("#### Q1 · Six-month readmission · Lakshmi")
+        st.markdown("#### Q1 · Six-month readmission")
         st.write("Can initial-admission information identify patients at higher risk of readmission within six months?")
         st.metric("Held-out ROC AUC", "0.540")
         st.write("Average precision **0.429**; 193 readmissions among **502** test patients. At the preselected 0.50 threshold, recall was **14.0%** (27 of 193 found).")
         st.caption("Interpretation: a weak ranking signal; probability error did not improve over the constant-risk baseline. Exploratory, not ready for patient-level decisions.")
     with p2:
-        st.markdown("#### Q2 · 28-day readmission · Shraddha")
+        st.markdown("#### Q2 · 28-day readmission")
         st.write("Can initial-admission information identify patients at higher risk of readmission within 28 days?")
         st.metric("Held-out ROC AUC", "0.619")
         st.write("Average precision **0.163**; 34 readmissions among **497** test patients. At a training-selected 0.319 threshold, recall was **76.5%** (26 of 34 found).")
         st.caption("Interpretation: many patients must be flagged to find most early readmissions; 64.0% of the test set was flagged. Exploratory and not externally validated.")
-    st.info("Q1 and Q2 use different outcomes, patient groups, and alert thresholds. Judge each against its own prevalence-only baseline; the AUC values are not a head-to-head comparison.")
-    st.markdown("#### Questions being developed")
-    future = pd.DataFrame([
-        {"Owner": "Swadhika", "Question": "Prolonged hospital stay from initial admission", "Status": "Model findings pending"},
-        {"Owner": "Dhivya", "Question": "Death within six months from initial admission", "Status": "Model findings pending"},
-    ])
-    st.dataframe(future, use_container_width=True, hide_index=True)
-    st.caption("The dashboard will add model metrics only after these notebooks are completed and checked on the master data.")
+    p3, p4 = st.columns(2)
+    with p3:
+        st.markdown("#### Q3 · Prolonged hospital stay")
+        st.write("Can initial-admission information identify stays lasting more than 10 days?")
+        st.metric("5-fold cross-validated ROC AUC", "0.663")
+        st.write("**498 of 2,008** patients stayed more than 10 days. Average precision was **0.388**; the severity-only AUC was **0.545**. At a 0.50 threshold, recall was **57.2%** and precision **36.4%**.")
+        st.caption("Interpretation: modest group-level signal, below the team's prespecified 0.70 discrimination target. Not externally validated.")
+    with p4:
+        st.markdown("#### Q4 · Six-month mortality")
+        st.write("Can initial-admission information identify patients at higher risk of death within six months?")
+        st.metric("Repeated cross-validated ROC AUC", "0.795")
+        st.write("**57 of 2,008** patients died within six months. Mean PR AUC was **0.186**. The top-risk 20% contained **36 of 57 deaths (63.2%)**, but precision was **9.0%**.")
+        st.caption("Interpretation: stronger discrimination in internal validation; estimates remain uncertain with only 57 deaths and no external validation.")
+    st.info("The four outcomes and validation designs differ: Q1–Q2 use held-out test sets, Q3 uses 5-fold cross-validation, and Q4 uses 5-fold × 10 repeated cross-validation. AUCs are context, not a direct competition between models.")
     st.divider()
-    st.markdown("### Completed predictive questions: full notebook write-ups")
+    st.markdown("### All predictive questions: full notebook findings")
     question_browser(findings, "Predictive", "predictive")
 
 with methods:
     st.subheader("What this dashboard uses")
     st.write(f"**Source:** `cleaned_data/patient_master.csv` · **Patients:** {len(df):,} · **Columns:** {df.shape[1]:,} · **One row per patient:** {df['inpatient_number'].is_unique}.")
     st.write("Charts and counts are calculated from the CSV whenever it changes. Question write-ups are a snapshot from the team's descriptive, prescriptive, and combined predictive notebooks; sidebar filters do not change notebook findings or refit models.")
-    st.write("**Coverage:** 10 descriptive questions, 30 prescriptive questions, two completed predictive questions, and two predictive questions awaiting results.")
-    st.write("**Source files:** `Team11_PyInsights_05_Findings.json` (the notebook write-up snapshot) and `cleaned_data/patient_master.csv` (live chart data). Update the findings snapshot when team notebooks change.")
+    st.write("**Coverage:** 10 descriptive questions, 30 prescriptive questions, and four completed predictive questions.")
+    st.write("**Source files:** `Team11_PyInsights_05.Findings.json` (the notebook write-up snapshot) and `cleaned_data/patient_master.csv` (live chart data). Update the findings snapshot when team notebooks change.")
     st.markdown("**Data check**")
     st.dataframe(outcome_summary(df).round(1), hide_index=True, use_container_width=True)
     st.markdown("**Interpretation limits**")
